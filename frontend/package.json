@@ -8,6 +8,7 @@
     "preview": "vite preview --host --port 5173"
   },
   "dependencies": {
+    "@carbon/icons-react": "^11.50.0",
     "@carbon/react": "^1.71.0",
     "@carbon/styles": "^1.70.0",
     "@curiousai/shared": "*",
