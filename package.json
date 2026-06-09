@@ -1,0 +1,19 @@
+{
+  "name": "curiousai",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Personalized AI knowledge system (Obsidian + ChatGPT + IBM ICA style)",
+  "workspaces": [
+    "shared",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,cyan \"npm:dev -w backend\" \"npm:dev -w frontend\"",
+    "build": "npm run build -w shared && npm run build -w backend && npm run build -w frontend",
+    "migrate": "npm run migrate -w backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

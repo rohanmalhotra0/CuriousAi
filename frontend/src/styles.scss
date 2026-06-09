@@ -1,0 +1,81 @@
+// IBM Carbon white theme (the ICA light look): white canvas, IBM blue accents.
+@use "@carbon/styles/scss/themes" as *;
+@use "@carbon/styles/scss/theme" with ($theme: $white);
+@use "@carbon/styles";
+
+:root {
+  --ica-blue: #0f62fe; // IBM Blue 60
+  --ica-blue-dark: #0043ce; // Blue 70
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+.app-main {
+  margin-top: 3rem; // clear the fixed Carbon header
+  padding: 2rem;
+  max-width: 1200px;
+}
+
+.page-title {
+  margin-bottom: 0.25rem;
+}
+.page-sub {
+  color: #525252;
+  margin-bottom: 1.5rem;
+}
+
+// Brand wordmark in the header
+.brand-curious {
+  font-weight: 600;
+}
+.brand-curious .accent {
+  color: var(--ica-blue);
+}
+
+// Chat layout
+.chat-wrap {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 3rem - 4rem);
+}
+.chat-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+.msg {
+  margin-bottom: 1.25rem;
+}
+.msg .bubble {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  display: inline-block;
+  max-width: 80%;
+  white-space: pre-wrap;
+}
+.msg.user .bubble {
+  background: var(--ica-blue);
+  color: #fff;
+}
+.msg.assistant .bubble {
+  background: #f4f4f4;
+  color: #161616;
+}
+.citations {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+.composer {
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+.composer .field {
+  flex: 1;
+}

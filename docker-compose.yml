@@ -1,0 +1,44 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: curious
+      POSTGRES_PASSWORD: curious
+      POSTGRES_DB: curiousai
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U curious -d curiousai"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://curious:curious@db:5432/curiousai
+      PORT: "4000"
+      AI_PROVIDER: deterministic
+      STORAGE_DIR: /data/files
+    ports:
+      - "4000:4000"
+    volumes:
+      - filedata:/data/files
+
+  web:
+    build: ./frontend
+    depends_on:
+      - api
+    environment:
+      VITE_API_BASE: http://localhost:4000
+    ports:
+      - "5173:5173"
+
+volumes:
+  dbdata:
+  filedata:
