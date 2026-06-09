@@ -2,8 +2,12 @@
 // retrieval has coherent units, then delegates vector generation to the provider.
 import { embeddingProvider } from "../providers/index.js";
 
-const TARGET_WORDS = 180; // ~ 500 tokens
-const OVERLAP_WORDS = 30;
+// Smaller windows keep each chunk topically focused, which matters a lot for the
+// lexical-hash embedding: a focused query then matches a focused chunk with high
+// cosine instead of being diluted across a large block. A semantic model could use
+// larger windows; this is tuned for the deterministic default.
+const TARGET_WORDS = 60;
+const OVERLAP_WORDS = 12;
 
 export interface Chunk {
   ordinal: number;

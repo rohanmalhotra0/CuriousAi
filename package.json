@@ -11,7 +11,8 @@
   "scripts": {
     "dev": "concurrently -n api,web -c blue,cyan \"npm:dev -w backend\" \"npm:dev -w frontend\"",
     "build": "npm run build -w shared && npm run build -w backend && npm run build -w frontend",
-    "migrate": "npm run migrate -w backend"
+    "migrate": "npm run migrate -w backend",
+    "test": "npm run test -w backend"
   },
   "devDependencies": {
     "concurrently": "^9.1.0"

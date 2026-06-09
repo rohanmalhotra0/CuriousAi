@@ -5,6 +5,13 @@ export interface LlmContextChunk {
 }
 
 export interface LlmProvider {
-  /** Stream a grounded answer token-by-token given the question + retrieved chunks. */
-  stream(question: string, context: LlmContextChunk[]): AsyncIterable<string>;
+  /**
+   * Stream a grounded answer token-by-token given the question, retrieved chunks,
+   * and any recalled user memories (used as soft context, not cited).
+   */
+  stream(
+    question: string,
+    context: LlmContextChunk[],
+    memories?: string[]
+  ): AsyncIterable<string>;
 }

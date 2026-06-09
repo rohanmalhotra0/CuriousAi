@@ -48,6 +48,19 @@ export interface ExpertCardDTO {
   matchScore: number;
 }
 
+/** Response for GET /experts — ranked experts for a question/topic. */
+export interface ExpertsResponse {
+  experts: ExpertCardDTO[];
+}
+
+/** Response for POST /experts/:userId/intro — request-intro placeholder. */
+export interface IntroRequestResponse {
+  id: string;
+  expertId: string;
+  status: "pending" | "sent" | "declined";
+  createdAt: string;
+}
+
 export interface ChatMessageDTO {
   id: string;
   role: "user" | "assistant";
@@ -63,6 +76,51 @@ export interface ChatResultEvent {
   citations: Citation[];
   routed: boolean;
   experts: ExpertCardDTO[];
+}
+
+// --- Mind map (topics) ---
+export interface GraphNodeDTO {
+  id: string;
+  label: string;
+  summary: string | null;
+  size: number;
+}
+export interface GraphEdgeDTO {
+  source: string;
+  target: string;
+  weight: number;
+}
+export interface GraphDTO {
+  nodes: GraphNodeDTO[];
+  edges: GraphEdgeDTO[];
+}
+
+// --- Skills ---
+export type SkillLevel = "beginner" | "intermediate" | "advanced";
+export interface SkillDTO {
+  id: string;
+  name: string;
+  summary: string | null;
+  level: SkillLevel;
+  evidenceCount: number;
+  source: "auto" | "user";
+  editedByUser: boolean;
+}
+
+// --- Settings ---
+export interface SettingsDTO {
+  memoryEnabled: boolean;
+}
+
+// --- Report ("here are the skills + mind map I built for you") ---
+export interface ReportDTO {
+  documentCount: number;
+  chunkCount: number;
+  topicCount: number;
+  skillCount: number;
+  topTopics: { label: string; size: number }[];
+  topSkills: { name: string; level: SkillLevel }[];
+  message: string;
 }
 
 export const CONFIDENCE_THRESHOLD = 65;

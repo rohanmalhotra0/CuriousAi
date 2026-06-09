@@ -8,6 +8,22 @@
   --ica-blue-dark: #0043ce; // Blue 70
 }
 
+// Skip-to-content link: off-screen until keyboard-focused (WCAG 2.4.1).
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  z-index: 9000;
+  padding: 0.5rem 1rem;
+  background: var(--ica-blue);
+  color: #fff;
+  text-decoration: none;
+
+  &:focus {
+    left: 0;
+  }
+}
+
 html,
 body,
 #root {

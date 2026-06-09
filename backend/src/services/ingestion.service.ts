@@ -12,6 +12,8 @@ import { logger } from "../lib/logger.js";
 import { EventBus } from "../lib/sse.js";
 import { extract, resolveMime } from "./extraction.service.js";
 import { chunkText, embedChunks } from "./embedding.service.js";
+import { rebuildTopics } from "./mindmap.service.js";
+import { rebuildSkills } from "./skill.service.js";
 
 export const fileEvents = new EventBus<FileStatusEvent>();
 
@@ -74,9 +76,22 @@ export async function processDocument(userId: string, docId: string, file: Incom
     }
     await setStatus(docId, "indexed", chunks.length);
     logger.info(`indexed document ${docId} (${chunks.length} chunks)`);
+
+    // Refresh the mind map + skill profile to include the new content. Best-effort:
+    // a rebuild failure must not flip the document back to `failed`.
+    await rebuildKnowledge(userId);
   } catch (e: any) {
     logger.error(`ingestion failed for ${docId}`, e?.message);
     await setStatus(docId, "failed", 0, e?.message ?? "Unknown error");
+  }
+}
+
+async function rebuildKnowledge(userId: string) {
+  try {
+    await rebuildTopics(userId);
+    await rebuildSkills(userId);
+  } catch (e: any) {
+    logger.warn(`knowledge rebuild failed for ${userId}`, e?.message);
   }
 }
 

@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/api/client.ts","./src/components/confidencebadge.tsx","./src/components/expertcard.tsx","./src/pages/chat.tsx","./src/pages/filemanager.tsx","./src/pages/mindmap.tsx","./src/pages/onboarding.tsx","./src/pages/placeholder.tsx","./src/pages/settings.tsx","./src/pages/skills.tsx"],"version":"5.9.3"}

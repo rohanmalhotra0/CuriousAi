@@ -7,6 +7,7 @@ import { llmProvider } from "../providers/index.js";
 import { retrieve, toCitations } from "../services/rag.service.js";
 import { scoreConfidence, shouldRoute } from "../services/confidence.service.js";
 import { findExperts } from "../services/expert.service.js";
+import { recall, ingestTurn } from "../services/memory.service.js";
 
 export const chatRouter = Router();
 
@@ -65,8 +66,14 @@ chatRouter.post("/:chatId/message", async (req, res, next) => {
       chatId, question,
     ]);
 
+    // Respect the user's memory toggle: when off, neither recall nor write.
+    const memoryEnabled = await isMemoryEnabled(req.userId, req.body?.memoryEnabled);
+
     const hits = await retrieve(req.userId, question);
-    const confidence = scoreConfidence(hits.map((h) => ({ score: h.vectorScore })));
+    const memories = memoryEnabled ? (await recall(req.userId, question)).map((m) => m.content) : [];
+    // Use the blended re-rank score (vector + keyword overlap), which the
+    // confidence calibration is tuned against.
+    const confidence = scoreConfidence(hits.map((h) => ({ score: h.score })));
     const citations = toCitations(hits);
 
     const sse = openSse(res);
@@ -74,7 +81,7 @@ chatRouter.post("/:chatId/message", async (req, res, next) => {
 
     let answer = "";
     const context = hits.map((h, i) => ({ index: i + 1, text: h.text, filename: h.filename }));
-    for await (const token of llmProvider.stream(question, context)) {
+    for await (const token of llmProvider.stream(question, context, memories)) {
       answer += token;
       sse.send("token", { token });
     }
@@ -95,6 +102,9 @@ chatRouter.post("/:chatId/message", async (req, res, next) => {
       );
     }
 
+    // Learn durable facts from the user's turn (recursive, drift-resistant).
+    if (memoryEnabled) await ingestTurn(req.userId, question);
+
     const result: ChatResultEvent = { confidence, citations, routed, experts };
     sse.send("result", result);
     sse.close();
@@ -102,3 +112,9 @@ chatRouter.post("/:chatId/message", async (req, res, next) => {
     next(e);
   }
 });
+
+async function isMemoryEnabled(userId: string, override?: unknown): Promise<boolean> {
+  if (typeof override === "boolean") return override;
+  const { rows } = await query("SELECT memory_enabled FROM users WHERE id = $1", [userId]);
+  return rows[0]?.memory_enabled ?? true;
+}

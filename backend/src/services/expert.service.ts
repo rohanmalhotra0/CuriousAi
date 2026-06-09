@@ -2,8 +2,9 @@
 // match the question and ranks them by depth + recency + topic match.
 // Phase-1 scope: ranking works against whatever skills exist; when none are
 // present it falls back to most-recently-active peers so routing still demos.
-import type { ExpertCardDTO } from "@curiousai/shared";
+import type { ExpertCardDTO, IntroRequestResponse } from "@curiousai/shared";
 import { query } from "../db/pool.js";
+import { badRequest, notFound } from "../lib/errors.js";
 
 export async function findExperts(
   askingUserId: string,
@@ -46,4 +47,27 @@ export async function findExperts(
 
   ranked.sort((a, b) => b.matchScore - a.matchScore);
   return ranked.slice(0, limit);
+}
+
+// Placeholder "request intro": durably record the ask. No email is sent yet —
+// a real connector reads intro_requests later. Idempotent-ish: callers can spam
+// the button, but we just append; dedup is a future concern.
+export async function requestIntro(
+  requesterId: string,
+  expertId: string,
+  question?: string
+): Promise<IntroRequestResponse> {
+  if (expertId === requesterId) throw badRequest("Cannot request an intro to yourself");
+
+  const expert = await query("SELECT id FROM users WHERE id = $1", [expertId]);
+  if (expert.rows.length === 0) throw notFound("Expert not found");
+
+  const { rows } = await query(
+    `INSERT INTO intro_requests (requester_id, expert_id, question)
+     VALUES ($1, $2, $3)
+     RETURNING id, expert_id, status, created_at`,
+    [requesterId, expertId, question?.trim() || null]
+  );
+  const r = rows[0];
+  return { id: r.id, expertId: r.expert_id, status: r.status, createdAt: r.created_at };
 }
